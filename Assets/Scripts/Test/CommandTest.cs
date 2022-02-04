@@ -18,16 +18,12 @@ public class CommandTest : MonoBehaviour
     private void Awake()
     {
         _commandManager = new CommandManager();
+        StartCoroutine(_commandManager.Execute());
     }
 
     private void Update()
     {
         HandlerInput();
-    }
-
-    private void FixedUpdate()
-    {
-        _commandManager.Execute();
     }
 
     private void HandlerInput()

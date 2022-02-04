@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 
 
@@ -82,7 +83,7 @@ namespace DesignMode.Command
         public  Queue<Command> CommandQueue = new Queue<Command>();//命令队列
         public  Stack<Command> CommandStackUndo = new Stack<Command>();//命令栈(用于撤销)
         public  Stack<Command> CommandStackRedo = new Stack<Command>();//命令栈(用于重做)
-
+        
         /// <summary>
         /// 向队列中添加命令
         /// </summary>
@@ -96,11 +97,15 @@ namespace DesignMode.Command
         /// <summary>
         /// 执行命令队列
         /// </summary>
-        public  void Execute()
+        public IEnumerator Execute()
         {
-            for (var i = 0; i < CommandQueue.Count; i++)
+            while (true)
             {
-                CommandQueue.Dequeue().Execute();
+                for (var i = 0; i < CommandQueue.Count; i++)
+                {
+                    CommandQueue.Dequeue().Execute();
+                }
+                yield return null;
             }
         }
 
