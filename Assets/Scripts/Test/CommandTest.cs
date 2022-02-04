@@ -17,7 +17,7 @@ public class CommandTest : MonoBehaviour
     private CommandManager _commandManager;
     private void Awake()
     {
-        _commandManager = new CommandManager();
+        _commandManager = new CommandManager(1000);
         StartCoroutine(_commandManager.Execute());
     }
 
@@ -32,9 +32,9 @@ public class CommandTest : MonoBehaviour
             _commandManager.AddCommand(new RotateCommand(transform, Random.Range(0.0f, 90f), Vector3.up));
         if (Input.GetKeyDown(KeyCode.E))
             _commandManager.AddCommand(new RotateCommand(transform, -Random.Range(0.0f, 90f), Vector3.forward));
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKey(KeyCode.Z))
             _commandManager.Undo();
-        if (Input.GetKeyDown(KeyCode.Y))
+        if (Input.GetKey(KeyCode.Y))
             _commandManager.Redo();
     }
 }

@@ -1,8 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-
-
+using System.Linq;
 
 
 // 命令模式
@@ -80,18 +79,26 @@ namespace DesignMode.Command
     /// </summary>
     public class CommandManager
     {
-        public  Queue<Command> CommandQueue = new Queue<Command>();//命令队列
-        public  Stack<Command> CommandStackUndo = new Stack<Command>();//命令栈(用于撤销)
-        public  Stack<Command> CommandStackRedo = new Stack<Command>();//命令栈(用于重做)
-        
+        private  Queue<Command> CommandQueue = new Queue<Command>();//命令队列
+        private  List<Command> CommandStackUndo = new List<Command>();//命令栈(用于撤销)
+        private  List<Command> CommandStackRedo = new List<Command>();//命令栈(用于重做)
+        private int stackSize;//命令栈大小
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="size">命令栈大小</param>
+        public CommandManager(int size)
+        {
+            stackSize = size;
+        }
         /// <summary>
         /// 向队列中添加命令
         /// </summary>
         /// <param name="command">命令</param>
-        public  void AddCommand(Command command)
+        public void AddCommand(Command command)
         {
             CommandQueue.Enqueue(command);
-            CommandStackUndo.Push(command);
         }
 
         /// <summary>
@@ -103,7 +110,11 @@ namespace DesignMode.Command
             {
                 for (var i = 0; i < CommandQueue.Count; i++)
                 {
-                    CommandQueue.Dequeue().Execute();
+                    var c = CommandQueue.Dequeue();
+                    c.Execute();
+                    CommandStackUndo.Add(c);
+                    if (CommandStackUndo.Count > stackSize)
+                        CommandStackUndo.RemoveAt(0);
                 }
                 yield return null;
             }
@@ -116,9 +127,12 @@ namespace DesignMode.Command
         {
             if (CommandStackUndo.Count > 0)
             {
-                var c = CommandStackUndo.Pop();
+                var c = CommandStackUndo.Last();
                 c.Undo();
-                CommandStackRedo.Push(c);
+                CommandStackUndo.Remove(c);
+                CommandStackRedo.Add(c); 
+                if (CommandStackRedo.Count > stackSize)
+                    CommandStackRedo.RemoveAt(0);
             }
         }
 
@@ -129,9 +143,12 @@ namespace DesignMode.Command
         {
             if (CommandStackRedo.Count > 0)
             {
-                var c= CommandStackRedo.Pop();
+                var c= CommandStackRedo.Last();
                 c.Redo();
-                CommandStackUndo.Push(c);
+                CommandStackRedo.Remove(c);
+                CommandStackUndo.Add(c);
+                if (CommandStackUndo.Count > stackSize)
+                    CommandStackUndo.RemoveAt(0);
             }
         }
     }
